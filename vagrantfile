@@ -1,0 +1,28 @@
+#BOX_IMAGE = "ubuntu/trusty64" # Ubuntu 14.04 LTS
+#BOX_IMAGE = "ubuntu/xenial64" # Ubuntu 16.04 LTS
+#BOX_IMAGE = "debian/jessie64" # Debian 8
+BOX_IMAGE = "centos/7" # CentOS 7
+#Qualquer VM em: https://app.vagrantup.com/boxes/search
+Vagrant.configure("2") do |config|
+  config.vm.define "centos-01" do |subconfig|
+  subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "centos-01"
+    subconfig.vm.network "private_network", ip: "192.168.100.100"
+  #config.ssh.username = "vagrant"
+  #config.ssh.password = "vagrant"
+  #config.ssh.insert_key = "false"
+ 
+  config.vm.provider "virtualbox" do |vb|
+  # Display the VirtualBox GUI when booting the machine
+  # vb.gui = true
+  # Customize the amount of memory on the VM:
+  vb.memory = "1024"
+  end
+ 
+  config.vm.provision "shell", inline: <<-SHELL
+     sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+     systemctl restart sshd
+     yum update -y && yum install net-tools htop nmap -y 
+  SHELL
+end
+end
